@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Chat con SignalR</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f8;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .main-container {
+            display: flex;
+            width: 100%;
+            max-width: 900px;
+            height: 80vh;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #fff;
+        }
+
+        /* ... [Il resto del CSS rimane simile, lo includiamo tutto per sicurezza] ... */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            /* La chat occupa lo spazio rimanente */
+        }
+
+        .users-container {
+            width: 200px;
+            /* Larghezza fissa per la lista utenti */
+            background-color: #f9f9f9;
+            border-left: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+            color: #333;
+            padding: 20px;
+            margin: 0;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #eee;
+            font-size: 1.2em;
+        }
+
+        h2 {
+            font-size: 1em;
+        }
+
+        #messagesList {
+            list-style-type: none;
+            margin: 0;
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        #messagesList li {
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            background-color: #e6f7ff;
+            color: #333;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        #messagesList li.notification {
+            background-color: transparent;
+            font-style: italic;
+            color: #888;
+            text-align: center;
+            max-width: 100%;
+        }
+
+        #onlineUsersList {
+            list-style-type: none;
+            margin: 0;
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        #onlineUsersList li {
+            padding: 5px 0;
+            color: #555;
+        }
+
+        #input-group {
+            display: flex;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #eee;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        .link-button {
+            background: none;
+            border: none;
+            color: #007bff;
+            text-decoration: underline;
+            cursor: pointer;
+            padding: 0;
+            font-size: inherit;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        #auth-links a,
+        #auth-links .link-button {
+            margin-left: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <div class="chat-container">
+            <div class="header">
+                <h1>Chat in Tempo Reale</h1>
+                <div id="auth-links">
+                    <a href="/Identity/Account/Register">Registrati</a>
+                    <a href="/Identity/Account/Login">Login</a>
+
+                    <form method="post" action="/Identity/Account/Logout" style="display: inline;">
+                        <button type="submit" class="link-button">Logout</button>
+                    </form>
+                </div>
+            </div>
+            <ul id="messagesList"></ul>
+            <div id="input-group">
+                <input type="text" id="messageInput" placeholder="Scrivi un messaggio..." />
+                <button id="sendButton">Invia</button>
+            </div>
+        </div>
+        <div class="users-container">
+            <h2>Online</h2>
+            <ul id="onlineUsersList"></ul>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script src="/js/chat.js"></script>
+</body>
+
+</html>

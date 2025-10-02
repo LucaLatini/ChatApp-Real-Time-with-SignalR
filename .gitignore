@@ -1,0 +1,43 @@
+# .gitignore per un progetto ASP.NET Core
+
+# --- Output della compilazione ---
+# Cartelle che contengono i file compilati, vengono rigenerate ad ogni build.
+[Bb]in/
+[Oo]bj/
+
+# --- File specifici degli IDE e editor ---
+# Impostazioni locali di Visual Studio, Rider, VS Code etc.
+.vs/
+.idea/
+.vscode/
+*.suo
+*.user
+
+# --- Database Locale ---
+# Il nostro database SQLite e i suoi file temporanei.
+# Ogni sviluppatore dovrebbe creare il proprio database locale tramite le migrazioni.
+*.db
+*.db-shm
+*.db-wal
+
+# --- File di Configurazione Locali ---
+# Le configurazioni specifiche per l'ambiente di sviluppo non vanno salvate.
+appsettings.Development.json
+secrets.json
+*.Secret.json
+
+# --- Log e Risultati dei Test ---
+*.log
+TestResults/
+
+# --- Cartelle delle dipendenze ---
+# (Anche se non le usiamo ora, è una buona pratica includerle)
+packages/
+node_modules/
+
+# --- File generati dal sistema operativo ---
+.DS_Store
+Thumbs.db
+
+# --- Cache degli strumenti .NET ---
+dotnet-tools.json

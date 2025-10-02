@@ -5,12 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Usa la nostra nuova classe ApplicationDbContext
+
 var connectionString = "Data Source=app.db";
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseSqlite(connectionString));
 
-// Ora AddDefaultIdentity funzionerà e userà il nostro DbContext
+
 builder.Services.AddDefaultIdentity<IdentityUser>(options => {
     options.Password.RequireDigit = false;
     options.Password.RequireLowercase = false;

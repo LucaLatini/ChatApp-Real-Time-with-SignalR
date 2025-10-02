@@ -1,4 +1,4 @@
-// chat.js FINALE
+
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/chatHub")
     .build();
@@ -38,7 +38,7 @@ connection.on("ReceiveUserList", function (users) {
     });
 });
 
-// 4. AZIONE: Avvia la connessione con il server
+
 connection.start().then(function () {
     console.log("Connessione stabilita!");
     sendButton.disabled = false;
@@ -52,8 +52,12 @@ connection.start().then(function () {
     }
 });
 
-// 5. AZIONE: Invia un messaggio (molto più semplice!)
+/**
+  * The message content entered by the user in the message input field.
+  * @type {string}
+  */
 sendButton.addEventListener("click", function (event) {
+
     const message = messageInput.value;
     if (message) {
         // Non inviamo più il nome utente!

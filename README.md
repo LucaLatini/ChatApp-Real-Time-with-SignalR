@@ -40,10 +40,12 @@ Per eseguire questo progetto in locale, segui questi passaggi.
    git clone https://github.com/tuo-utente/tuo-progetto.git
    cd ChatAppServer
 2. **Crea il database:**
+3. ```bash
    dotnet ef database update
-3. **Avvia l'applicazione**
+4. **Avvia l'applicazione**
+5. ```bash
    dotnet run
-4. **Apri il browser**
+6. **Apri il browser**
    Naviga all'indirizzo fornito nel terminale (es. https://localhost:7123).
 ## 🎮 Come Utilizzare l'Applicazione
 

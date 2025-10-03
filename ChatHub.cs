@@ -142,4 +142,34 @@ public class ChatHub : Hub
         // Invia la notifica a TUTTI GLI ALTRI nella stessa stanza
         await Clients.Group(roomName).SendAsync("ReceiveTypingNotification", username, false);
     }
+    
+    // Inserisci questo codice dentro la classe ChatHub
+
+    /// <summary>
+    /// Invia un messaggio privato a un utente specifico.
+    /// Il messaggio viene inviato solo se il destinatario è online.
+    /// </summary>
+    /// <param name="recipientUsername">Nome utente del destinatario</param>
+    /// <param name="message">Testo del messaggio</param>
+    /// <returns>Task asincrono</returns>
+public async Task SendPrivateMessage(string recipientUsername, string message)
+{
+    var senderUsername = GetUsername();
+
+    // Trova l'ID di connessione del destinatario
+    // Usiamo FirstOrDefault per trovare la prima corrispondenza nel dizionario
+    var recipientConnectionId = ConnectedUsers
+        .FirstOrDefault(x => x.Value == recipientUsername).Key;
+
+    if (recipientConnectionId != null)
+    {
+        // Invia il messaggio al destinatario specifico
+        await Clients.Client(recipientConnectionId)
+            .SendAsync("ReceivePrivateMessage", senderUsername, message);
+            
+        // Invia una copia del messaggio anche al mittente, per la sua UI
+        await Clients.Caller
+            .SendAsync("ReceivePrivateMessage", senderUsername, message, true); // Aggiungiamo un flag per identificarlo
+    }
+}
 }

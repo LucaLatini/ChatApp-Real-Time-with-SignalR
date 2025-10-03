@@ -186,3 +186,27 @@ button:disabled {
     font-style: italic;
     color: #888;
 }
+#onlineUsersList li {
+    cursor: pointer; /* Cambia il cursore in una manina */
+    padding: 5px 0;
+    color: #555;
+}
+#onlineUsersList li:hover {
+    font-weight: bold; /* Evidenzia l'utente al passaggio del mouse */
+}
+#messagesList li.private-message {
+    background-color: #dff0d8; /* Verde chiaro per i messaggi privati */
+    border-left: 4px solid #5cb85c;
+}
+#private-chat-header {
+    display: none; /* Nascosto di default */
+    padding: 5px 20px;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #ddd;
+    font-style: italic;
+}
+#private-chat-header button {
+    padding: 2px 8px;
+    font-size: 12px;
+    margin-left: 15px;
+}

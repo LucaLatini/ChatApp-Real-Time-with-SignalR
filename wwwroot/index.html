@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Chat con SignalR</title>
     <link rel="stylesheet" href="/css/site.css">
 </head>
-
 <body>
     <div id="login-prompt" class="room-container">
         <h2>Benvenuto nella Chat!</h2>
@@ -28,15 +26,17 @@
             <div class="header">
                 <h1>Chat in Tempo Reale</h1>
                 <div id="auth-links">
+                    <button id="changeRoomButton" type="button" class="link-button">Cambia Stanza</button>
                     <form method="post" action="/Identity/Account/Logout" style="display: inline;">
                         <button type="submit" class="link-button">Logout</button>
                     </form>
                 </div>
             </div>
+
+            <div id="private-chat-header"></div>
+
             <ul id="messagesList"></ul>
-
             <div id="typing-indicator" class="typing-indicator"></div>
-
             <div id="input-group">
                 <input type="text" id="messageInput" placeholder="Scrivi un messaggio..." />
                 <button id="sendButton">Invia</button>
@@ -47,11 +47,9 @@
             <h2>Online</h2>
             <ul id="onlineUsersList"></ul>
         </div>
-
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
     <script src="/js/chat.js"></script>
 </body>
-
 </html>

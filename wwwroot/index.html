@@ -184,8 +184,17 @@
         .btn-secondary {
             background-color: #6c757d;
         }
+
+        .typing-indicator {
+            height: 25px;
+            /* Dà uno spazio fisso per non far "saltare" l'interfaccia */
+            padding: 0 20px;
+            font-style: italic;
+            color: #888;
+        }
     </style>
 </head>
+
 <body>
     <div id="login-prompt" class="room-container">
         <h2>Benvenuto nella Chat!</h2>
@@ -203,6 +212,7 @@
     </div>
 
     <div class="main-container hidden">
+
         <div class="chat-container">
             <div class="header">
                 <h1>Chat in Tempo Reale</h1>
@@ -213,15 +223,20 @@
                 </div>
             </div>
             <ul id="messagesList"></ul>
+
+            <div id="typing-indicator" class="typing-indicator"></div>
+
             <div id="input-group">
                 <input type="text" id="messageInput" placeholder="Scrivi un messaggio..." />
                 <button id="sendButton">Invia</button>
             </div>
         </div>
+
         <div class="users-container">
             <h2>Online</h2>
             <ul id="onlineUsersList"></ul>
         </div>
+
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>

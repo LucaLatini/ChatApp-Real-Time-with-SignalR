@@ -7,7 +7,7 @@ public class ChatHub : Hub
 {
     // Manteniamo la lista degli utenti connessi
     private static ConcurrentDictionary<string, string> ConnectedUsers = new();
-    
+
     // NUOVO: "Memoria" per sapere in quale stanza si trova ogni utente
     private static ConcurrentDictionary<string, string> UserRooms = new();
 
@@ -29,7 +29,7 @@ public class ChatHub : Hub
 
         // Inviamo una notifica solo agli utenti nella nuova stanza
         await Clients.Group(roomName).SendAsync("ReceiveNotification", $"{username} si è unito alla stanza '{roomName}'.");
-        
+
         // Aggiorniamo la lista utenti per tutti (potrebbe essere ottimizzato)
         await UpdateUserList();
     }
@@ -64,7 +64,7 @@ public class ChatHub : Hub
             var username = GetUsername();
             await Clients.Group(roomName).SendAsync("ReceiveNotification", $"{username} ha lasciato la chat.");
         }
-        
+
         await UpdateUserList();
         await base.OnDisconnectedAsync(exception);
     }
@@ -81,5 +81,23 @@ public class ChatHub : Hub
         var users = ConnectedUsers.Values.ToList();
         // Invia la lista a tutti, indistintamente dalla stanza
         await Clients.All.SendAsync("ReceiveUserList", users);
+    }
+
+    // Inserisci questo codice dentro la classe ChatHub
+
+    // NUOVO: Metodo per notificare che l'utente sta scrivendo
+    public async Task UserIsTyping(string roomName)
+    {
+        var username = GetUsername();
+        // Invia la notifica a TUTTI GLI ALTRI nella stessa stanza
+        await Clients.Group(roomName).SendAsync("ReceiveTypingNotification", username, true);
+    }
+
+    // NUOVO: Metodo per notificare che l'utente ha smesso di scrivere
+    public async Task UserStoppedTyping(string roomName)
+    {
+        var username = GetUsername();
+        // Invia la notifica a TUTTI GLI ALTRI nella stessa stanza
+        await Clients.Group(roomName).SendAsync("ReceiveTypingNotification", username, false);
     }
 }

@@ -50,13 +50,32 @@ joinRoomButton.addEventListener("click", function () {
     }
 });
 
+// --- Gestione Invio Messaggi e Notifiche di Scrittura ---
 
-// --- Gestione Invio Messaggi ---
+// Timer per gestire la notifica "sta scrivendo"
+let typingTimer;
+
+messageInput.addEventListener("input", () => {
+    // L'utente sta scrivendo: invia la notifica
+    connection.invoke("UserIsTyping", currentRoom).catch(err => console.error(err.toString()));
+
+    // Resetta il timer ogni volta che l'utente preme un tasto
+    clearTimeout(typingTimer);
+
+    // Imposta un nuovo timer: se l'utente non scrive per 1.5 secondi, invia "ha smesso"
+    typingTimer = setTimeout(() => {
+        connection.invoke("UserStoppedTyping", currentRoom).catch(err => console.error(err.toString()));
+    }, 1500); // 1.5 secondi
+});
+
 
 sendButton.addEventListener("click", function (event) {
     const message = messageInput.value;
     if (message && currentRoom) {
-        // Invia il messaggio e la stanza corrente al server
+        // Quando invia, ferma subito il timer e la notifica "sta scrivendo"
+        clearTimeout(typingTimer);
+        connection.invoke("UserStoppedTyping", currentRoom).catch(err => console.error(err.toString()));
+
         connection.invoke("SendMessage", message, currentRoom).then(() => {
             messageInput.value = "";
             messageInput.focus();
@@ -64,7 +83,6 @@ sendButton.addEventListener("click", function (event) {
     }
     event.preventDefault();
 });
-
 
 // --- Ascoltatori di Eventi dall'Hub ---
 
@@ -100,3 +118,29 @@ function appendMessage(content, isNotification = false) {
     }
     messagesList.appendChild(li);
 }
+
+// ... codice precedente ...
+
+// NUOVO ASCOLTATORE: Gestisce le notifiche "sta scrivendo"
+const typingUsers = new Set(); // Usiamo un Set per evitare duplicati
+const typingIndicator = document.getElementById("typing-indicator");
+
+connection.on("ReceiveTypingNotification", (user, isTyping) => {
+    if (isTyping) {
+        typingUsers.add(user); // Aggiunge l'utente alla lista di chi scrive
+    } else {
+        typingUsers.delete(user); // Rimuove l'utente
+    }
+
+    if (typingUsers.size === 0) {
+        typingIndicator.textContent = "";
+    } else if (typingUsers.size === 1) {
+        typingIndicator.textContent = `${Array.from(typingUsers)[0]} sta scrivendo...`;
+    } else if (typingUsers.size <= 3) {
+        typingIndicator.textContent = `${Array.from(typingUsers).join(', ')} stanno scrivendo...`;
+    } else {
+        typingIndicator.textContent = "Più utenti stanno scrivendo...";
+    }
+});
+
+// ... resto del codice (funzione appendMessage) ...

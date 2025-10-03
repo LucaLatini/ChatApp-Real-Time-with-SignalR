@@ -2,67 +2,84 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 
-[Authorize] // L'accesso è consentito solo agli utenti autenticati
-/// <summary>
-/// Hub SignalR per la chat
-/// </summary>
+[Authorize]
 public class ChatHub : Hub
 {
-    // La nostra "memoria" per gli utenti online (rimane invariata)
+    // Manteniamo la lista degli utenti connessi
     private static ConcurrentDictionary<string, string> ConnectedUsers = new();
+    
+    // NUOVO: "Memoria" per sapere in quale stanza si trova ogni utente
+    private static ConcurrentDictionary<string, string> UserRooms = new();
 
+    // NUOVO: Metodo per permettere a un utente di unirsi a una stanza
+    public async Task JoinRoom(string roomName)
+    {
+        var username = GetUsername();
 
-    /// <summary>
-    /// Eseguito quando un utente si connette
-    /// </summary>
-    /// <returns></returns>
+        // Se l'utente era già in un'altra stanza, lo rimuoviamo da lì
+        if (UserRooms.TryGetValue(Context.ConnectionId, out string oldRoom))
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, oldRoom);
+            await Clients.Group(oldRoom).SendAsync("ReceiveNotification", $"{username} ha lasciato la stanza.");
+        }
+
+        // Aggiungiamo l'utente al nuovo gruppo (stanza)
+        await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
+        UserRooms[Context.ConnectionId] = roomName; // Memorizziamo la stanza corrente dell'utente
+
+        // Inviamo una notifica solo agli utenti nella nuova stanza
+        await Clients.Group(roomName).SendAsync("ReceiveNotification", $"{username} si è unito alla stanza '{roomName}'.");
+        
+        // Aggiorniamo la lista utenti per tutti (potrebbe essere ottimizzato)
+        await UpdateUserList();
+    }
+
+    // MODIFICATO: Ora il metodo accetta anche il nome della stanza
+    public async Task SendMessage(string message, string roomName)
+    {
+        var username = GetUsername();
+        // Invia il messaggio solo al gruppo specificato
+        await Clients.Group(roomName).SendAsync("ReceiveMessage", username, message);
+    }
+
+    // --- Metodi del ciclo di vita (OnConnected/OnDisconnected) ---
+
     public override async Task OnConnectedAsync()
     {
-        // il nome utente dal contesto di autenticazione
-        var username = Context.User.Identity?.Name ?? "Utente Sconosciuto";
-
-        // aggiungo l'utente alla lista e lo notifichiamo a tutti
+        var username = GetUsername();
         ConnectedUsers[Context.ConnectionId] = username;
-        await Clients.All.SendAsync("ReceiveNotification", $"{username} si è unito alla chat.");
+        // La notifica di join ora avviene quando si entra in una stanza, non qui
         await UpdateUserList();
-
         await base.OnConnectedAsync();
     }
 
-    /// <summary>
-    /// Eseguito quando un utente si disconnette
-    /// </summary>
-    /// <param name="exception"></param>
-    /// <returns></returns>
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        if (ConnectedUsers.TryRemove(Context.ConnectionId, out string? username))
-        {
-            await Clients.All.SendAsync("ReceiveNotification", $"{username} ha lasciato la chat.");
-            await UpdateUserList();
-        }
+        // Rimuoviamo l'utente dalla lista generale
+        ConnectedUsers.TryRemove(Context.ConnectionId, out _);
 
+        // Se l'utente era in una stanza, lo notifichiamo a quella stanza
+        if (UserRooms.TryRemove(Context.ConnectionId, out string roomName))
+        {
+            var username = GetUsername();
+            await Clients.Group(roomName).SendAsync("ReceiveNotification", $"{username} ha lasciato la chat.");
+        }
+        
+        await UpdateUserList();
         await base.OnDisconnectedAsync(exception);
     }
 
-    /// <summary>
-    /// Metodo chiamato dai client per inviare un messaggio
-    /// </summary>
-    /// <param name="message"></param>
-    /// <returns></returns>
-    public async Task SendMessage(string message)
+    // --- Metodi Helper ---
+
+    private string GetUsername()
     {
-        var username = Context.User.Identity?.Name ?? "Utente Sconosciuto";
-        await Clients.All.SendAsync("ReceiveMessage", username, message);
+        return Context.User.Identity?.Name ?? "Utente Sconosciuto";
     }
 
-    /// <summary>
-    /// Aggiorna la lista degli utenti connessi per tutti i client
-    /// </summary>
-    /// <returns></returns>
     private async Task UpdateUserList()
     {
         var users = ConnectedUsers.Values.ToList();
+        // Invia la lista a tutti, indistintamente dalla stanza
         await Clients.All.SendAsync("ReceiveUserList", users);
     }
 }
